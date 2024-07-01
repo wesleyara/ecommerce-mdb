@@ -2,10 +2,20 @@ import { verifyToken } from "../lib/jwt";
 import { Account } from "../models/AccountModel";
 import { Product } from "../models/ProductModel";
 import { AccountRepository } from "../repositories/AccountRepository";
+import { ProductRepository } from "../repositories/ProductRepository";
 import { CreateProductProps } from "../types";
 
 export class ProductService {
-  constructor(private accountRepository = new AccountRepository()) {}
+  constructor(
+    private accountRepository = new AccountRepository(),
+    readonly productRepository = new ProductRepository(),
+  ) {}
+
+  async findProducts() {
+    const products = await this.productRepository.findProducts();
+
+    return products;
+  }
 
   async createProduct({
     token,
@@ -28,7 +38,7 @@ export class ProductService {
       throw new Error("Account not found");
     }
 
-    const brlPrice = `R$ ${formattedPrice.toFixed(2)}`
+    const brlPrice = `R$ ${formattedPrice.toFixed(2)}`;
 
     const product = new Product({
       owner_id: account._id,

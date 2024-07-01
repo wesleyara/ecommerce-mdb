@@ -156,28 +156,58 @@
             "schema": {
               "type": "object",
               "properties": {
-                "token": {
-                  "_id": "string",
-                  "owner": "string",
-                  "balance": "number",
-                  "transactions": [
-                    {
-                      "_id": "string",
-                      "from": "string",
-                      "type": "string",
-                      "to": "string ou null",
-                      "amount": "number",
-                      "effectiveDate": "string",
-                      "__v": "number"
-                    }
-                  ],
-                  "__v": "number"
-                }
+                "_id": "string",
+                "owner": "string",
+                "balance": "number",
+                "transactions": [
+                  {
+                    "_id": "string",
+                    "from": "string",
+                    "type": "string",
+                    "to": "string ou null",
+                    "amount": "number",
+                    "effectiveDate": "string",
+                    "__v": "number"
+                  }
+                ],
+                "__v": "number"
               }
             }
           },
           "401": {
-            "description": "Token de autenticação não fornecido ou inválido"
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/products": {
+      "get": {
+        "summary": "List products",
+        "tags": ["Products"],
+        "responses": {
+          "200": {
+            "description": "List of products",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "_id": "string",
+                "title": "string",
+                "description": "string",
+                "price": "string",
+                "__v": "number"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                }
+              }
+            }
           }
         }
       }

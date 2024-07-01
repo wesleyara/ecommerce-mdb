@@ -5,6 +5,16 @@ import { tokenAuth } from "../lib/jwt";
 export class ProductController {
   constructor(readonly productService = new ProductService()) {}
 
+  async getProducts(req: Request, res: Response) {
+    try {
+      const products = await this.productService.findProducts();
+
+      return res.status(200).json(products);
+    } catch (err: any) {
+      return res.status(400).json({ error: err.message });
+    }
+  }
+
   async createProduct(req: Request, res: Response) {
     const { title, description, price } = req.body;
 
