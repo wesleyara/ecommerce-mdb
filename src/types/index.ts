@@ -23,3 +23,11 @@ export interface CreateProductProps {
   description: string;
   price: string;
 }
+
+// --- Category ---
+
+export interface CreateCategoryProps {
+  token: string;
+  title: string;
+  description: string;
+}
