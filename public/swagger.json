@@ -1,0 +1,244 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "description": "This is a simple API to simulate a ecommerce",
+    "version": "1.0.0",
+    "title": "Ecommerce MDB",
+    "contact": {
+      "email": "contato@exemplo.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3333/api/v1"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Accounts",
+      "description": "Authentication operations"
+    },
+    {
+      "name": "Products",
+      "description": "Product operations"
+    }
+  ],
+  "paths": {
+    "/accounts/create": {
+      "post": {
+        "summary": "Account create",
+        "tags": ["Accounts"],
+        "requestBody": {
+          "description": "Create a new account",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                },
+                "required": ["name", "email", "password"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Account created",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/accounts/login": {
+      "post": {
+        "summary": "Account login",
+        "tags": ["Accounts"],
+        "requestBody": {
+          "description": "Create a new account",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                },
+                "required": ["email", "password"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Login successful",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "token": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/accounts": {
+      "get": {
+        "summary": "Return the account",
+        "tags": ["Accounts"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Account returned",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "token": {
+                  "_id": "string",
+                  "owner": "string",
+                  "balance": "number",
+                  "transactions": [
+                    {
+                      "_id": "string",
+                      "from": "string",
+                      "type": "string",
+                      "to": "string ou null",
+                      "amount": "number",
+                      "effectiveDate": "string",
+                      "__v": "number"
+                    }
+                  ],
+                  "__v": "number"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token de autenticação não fornecido ou inválido"
+          }
+        }
+      }
+    },
+    "/products/create": {
+      "post": {
+        "summary": "Product create",
+        "tags": ["Products"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "Create a new product",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "price": {
+                    "type": "number"
+                  }
+                },
+                "required": ["title", "description", "price"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Login successful",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "token": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

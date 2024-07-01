@@ -13,6 +13,11 @@ export class ProductService {
     description,
     price,
   }: CreateProductProps) {
+    const formattedPrice = parseFloat(price);
+    if (isNaN(formattedPrice)) {
+      throw new Error("Invalid price");
+    }
+
     const decoded: any = verifyToken(token);
     if (!decoded) {
       throw new Error("Invalid token");
@@ -23,11 +28,13 @@ export class ProductService {
       throw new Error("Account not found");
     }
 
+    const brlPrice = `R$ ${formattedPrice.toFixed(2)}`
+
     const product = new Product({
       owner_id: account._id,
       title,
       description,
-      price,
+      price: brlPrice,
     });
 
     await product.save();

@@ -14,7 +14,7 @@ export class ProductController {
         throw new Error("Token not found");
       }
 
-      if (!title?.trim() || !description?.trim() || !price?.trim()) {
+      if (!title?.trim() || !description?.trim() || !price) {
         throw new Error("Title, description or price not provided");
       }
 
