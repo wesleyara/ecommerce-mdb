@@ -14,3 +14,12 @@ export interface LoginAccountProps {
 export interface GetAccountProps {
   token: string;
 }
+
+// --- Product ---
+
+export interface CreateProductProps {
+  token: string;
+  title: string;
+  description: string;
+  price: string;
+}
