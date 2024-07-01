@@ -38,6 +38,14 @@ export class ProductService {
       throw new Error("Account not found");
     }
 
+    const products = await this.productRepository.findProductByOwnerId(
+      account._id,
+    );
+    const productExists = products.find(product => product.title === title);
+    if (productExists) {
+      throw new Error("Product already exists");
+    }
+
     const brlPrice = `R$ ${formattedPrice.toFixed(2)}`;
 
     const product = new Product({
