@@ -91,9 +91,9 @@ export class CategoryService {
           item.owner_id.toString() === account._id?.toString(),
       )
       .map(item => item._id);
-    const filteredProductsWithCurrentCategory = products.map(item => item._id);
-
-    console.log(filteredProductsWithCurrentCategory);
+    const filteredProductsWithCurrentCategory = products
+      .filter(item => item.category?.toString() === category._id?.toString())
+      .map(item => item._id);
 
     const promises = [];
 
