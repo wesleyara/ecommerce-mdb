@@ -1,5 +1,8 @@
 import { Category } from "../models/CategoryModel";
-import { RepositoryCreateCategory } from "../types";
+import {
+  RepositoryCreateCategory,
+  UpdateRelationsProps,
+} from "../types/repository";
 
 export class CategoryRepository {
   async createCategory({
@@ -19,14 +22,24 @@ export class CategoryRepository {
   }
 
   async findCategories() {
-    const response = await Category.find();
+    const response = await Category.find().populate("products");
 
     return response;
   }
 
   async findCategoriesByOwnerId(owner_id: unknown) {
-    const response = await Category.find({ owner_id });
+    const response = await Category.find({ owner_id }).populate("products");
 
     return response;
+  }
+
+  async updateRelations({ modelId, type, typeId }: UpdateRelationsProps) {
+    try {
+      await Category.findByIdAndUpdate(modelId, {
+        $push: { [type]: typeId },
+      });
+    } catch (error) {
+      throw new Error(`${type} not updated`);
+    }
   }
 }

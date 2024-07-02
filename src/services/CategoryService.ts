@@ -43,7 +43,7 @@ export class CategoryService {
     });
 
     await this.accountRepository.updateRelations({
-      accountId: account._id,
+      modelId: account._id,
       type: "categories",
       typeId: category._id,
     });
