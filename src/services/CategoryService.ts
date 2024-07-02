@@ -28,7 +28,7 @@ export class CategoryService {
       throw new Error("Account not found");
     }
 
-    const categories = await this.categoryRepository.findCategoryByOwnerId(
+    const categories = await this.categoryRepository.findCategoriesByOwnerId(
       account._id,
     );
     const categoryExists = categories.find(

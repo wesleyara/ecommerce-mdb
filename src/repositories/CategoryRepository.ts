@@ -7,7 +7,7 @@ export class CategoryRepository {
     return response;
   }
 
-  async findCategoryByOwnerId(owner_id: unknown) {
+  async findCategoriesByOwnerId(owner_id: unknown) {
     const response = await Category.find({ owner_id });
 
     return response;

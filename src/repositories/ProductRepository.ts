@@ -7,7 +7,7 @@ export class ProductRepository {
     return response;
   }
 
-  async findProductByOwnerId(owner_id: unknown) {
+  async findProductsByOwnerId(owner_id: unknown) {
     const response = await Product.find({ owner_id });
 
     return response;

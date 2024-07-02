@@ -38,7 +38,7 @@ export class ProductService {
       throw new Error("Account not found");
     }
 
-    const products = await this.productRepository.findProductByOwnerId(
+    const products = await this.productRepository.findProductsByOwnerId(
       account._id,
     );
     const productExists = products.find(product => product.title === title);
