@@ -5,6 +5,7 @@ export class AccountRepository {
     try {
       const account = await Account.findOne({ email });
       await account?.populate("products");
+      await account?.populate("categories");
 
       return account;
     } catch (error) {
@@ -16,6 +17,7 @@ export class AccountRepository {
     try {
       const account = await Account.findById(id);
       await account?.populate("products");
+      await account?.populate("categories");
 
       return account;
     } catch (error) {
