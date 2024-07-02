@@ -1,6 +1,4 @@
 import { verifyToken } from "../lib/jwt";
-import { Account } from "../models/AccountModel";
-import { Product } from "../models/ProductModel";
 import { AccountRepository } from "../repositories/AccountRepository";
 import { ProductRepository } from "../repositories/ProductRepository";
 import { CreateProductProps } from "../types";
@@ -48,17 +46,17 @@ export class ProductService {
 
     const brlPrice = `R$ ${formattedPrice.toFixed(2)}`;
 
-    const product = new Product({
-      owner_id: account._id,
+    const product = await this.productRepository.createProduct({
       title,
       description,
       price: brlPrice,
+      owner_id: account._id,
     });
 
-    await product.save();
-
-    await Account.findByIdAndUpdate(account._id, {
-      $push: { products: product._id },
+    await this.accountRepository.updateRelations({
+      accountId: account._id,
+      type: "products",
+      typeId: product._id,
     });
 
     return product;

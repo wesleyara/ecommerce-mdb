@@ -1,6 +1,25 @@
 import { Product } from "../models/ProductModel";
+import { RepositoryCreateProduct } from "../types";
 
 export class ProductRepository {
+  async createProduct({
+    title,
+    description,
+    price,
+    owner_id,
+  }: RepositoryCreateProduct) {
+    const product = await Product.create({
+      title,
+      description,
+      price,
+      owner_id,
+    });
+
+    await product.save();
+
+    return product;
+  }
+
   async findProducts() {
     const response = await Product.find();
 

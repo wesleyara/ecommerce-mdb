@@ -2,7 +2,6 @@
 /* eslint-disable no-unused-vars */
 import { decryptHash, generateHash } from "../lib/generateHash";
 import { createToken, verifyToken } from "../lib/jwt";
-import { Account } from "../models/AccountModel";
 import { AccountRepository } from "../repositories/AccountRepository";
 import {
   CreateAccountProps,
@@ -25,13 +24,11 @@ export class AccountService {
 
     const passwordHash = generateHash(password, SECRET);
 
-    const account = new Account({
+    await this.accountRepository.createAccount({
       name,
       email,
       password: passwordHash,
     });
-
-    await account.save();
   }
 
   async login({ email, password }: LoginAccountProps) {

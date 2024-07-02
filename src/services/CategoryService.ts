@@ -1,6 +1,4 @@
 import { verifyToken } from "../lib/jwt";
-import { Account } from "../models/AccountModel";
-import { Category } from "../models/CategoryModel";
 import { AccountRepository } from "../repositories/AccountRepository";
 import { CategoryRepository } from "../repositories/CategoryRepository";
 import { CreateCategoryProps } from "../types";
@@ -38,16 +36,16 @@ export class CategoryService {
       throw new Error("Category already exists");
     }
 
-    const category = new Category({
-      owner_id: account._id,
+    const category = await this.categoryRepository.createCategory({
       title,
       description,
+      owner_id: account._id,
     });
 
-    await category.save();
-
-    await Account.findByIdAndUpdate(account._id, {
-      $push: { categories: category._id },
+    await this.accountRepository.updateRelations({
+      accountId: account._id,
+      type: "categories",
+      typeId: category._id,
     });
 
     return category;
