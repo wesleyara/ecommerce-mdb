@@ -22,6 +22,9 @@ router.get("/products", (req, res) => productController.getProducts(req, res));
 router.post("/products/create", (req, res) =>
   productController.createProduct(req, res),
 );
+router.post("/products/update", (req, res) =>
+  productController.updateProduct(req, res),
+);
 
 // category routes
 router.get("/categories", (req, res) =>
