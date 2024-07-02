@@ -1,6 +1,7 @@
 import { Product } from "../models/ProductModel";
 import {
   RepositoryCreateProduct,
+  RepositoryUpdateManyProducts,
   RepositoryUpdateProduct,
 } from "../types/repository";
 
@@ -59,6 +60,27 @@ export class ProductRepository {
       },
       { new: true },
     );
+
+    return product;
+  }
+
+  async updateManyProducts({
+    productIds,
+    category_id,
+    remove_category,
+  }: RepositoryUpdateManyProducts) {
+    const products = await Product.updateMany(
+      { _id: { $in: productIds } },
+      {
+        category: remove_category ? null : category_id,
+      },
+    );
+
+    return products;
+  }
+
+  async deleteProductById(productId: unknown) {
+    const product = await Product.findByIdAndDelete(productId);
 
     return product;
   }

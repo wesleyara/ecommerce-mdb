@@ -108,16 +108,31 @@ export class ProductService {
       product.price = brlPrice;
     }
 
+    const promises = [];
+
+    promises.push(
+      this.productRepository.updateProduct({
+        productId: product._id,
+        title: product.title,
+        description: product.description,
+        price: product.price,
+        category_id: category_id || product.category,
+        remove_category,
+      }),
+    );
+
     if (category_id && !remove_category) {
       if (product.category) {
         throw new Error("Category already set");
       }
 
-      await this.categoryRepository.updateRelations({
-        modelId: category_id,
-        type: "products",
-        typeId: product._id,
-      });
+      promises.push(
+        this.categoryRepository.updateRelations({
+          modelId: category_id,
+          type: "products",
+          typeId: product._id,
+        }),
+      );
     }
 
     if (remove_category) {
@@ -125,21 +140,16 @@ export class ProductService {
         throw new Error("No category set");
       }
 
-      await this.categoryRepository.removeRelations({
-        modelId: product.category,
-        type: "products",
-        typeId: product._id,
-      });
+      promises.push(
+        this.categoryRepository.removeRelations({
+          modelId: product.category,
+          type: "products",
+          typeId: product._id,
+        }),
+      );
     }
 
-    const response = await this.productRepository.updateProduct({
-      productId: product._id,
-      title: product.title,
-      description: product.description,
-      price: product.price,
-      category_id: category_id || product.category,
-      remove_category,
-    });
+    const [response] = await Promise.all(promises);
 
     return response;
   }
@@ -164,19 +174,29 @@ export class ProductService {
       throw new Error("Unauthorized");
     }
 
-    await this.accountRepository.removeRelations({
-      modelId: account._id,
-      type: "products",
-      typeId: product._id,
-    });
+    const promises = [];
 
-    if (product.category) {
-      await this.categoryRepository.removeRelations({
-        modelId: product.category,
+    promises.push(
+      this.accountRepository.removeRelations({
+        modelId: account._id,
         type: "products",
         typeId: product._id,
-      });
+      }),
+    );
+
+    if (product.category) {
+      promises.push(
+        this.categoryRepository.removeRelations({
+          modelId: product.category,
+          type: "products",
+          typeId: product._id,
+        }),
+      );
     }
+
+    promises.push(this.productRepository.deleteProductById(product._id));
+
+    await Promise.all(promises);
 
     return product;
   }

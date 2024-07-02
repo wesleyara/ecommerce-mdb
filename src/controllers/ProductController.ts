@@ -80,12 +80,12 @@ export class ProductController {
         throw new Error("Product ID not provided");
       }
 
-      await this.productService.deleteProduct({
+      const product = await this.productService.deleteProduct({
         token: bearerToken,
         productId,
       });
 
-      return res.status(200).json({ message: "Product deleted" });
+      return res.status(200).json({ message: "Product deleted", product });
     } catch (err: any) {
       return res.status(400).json({ error: err.message });
     }
