@@ -52,4 +52,14 @@ export class AccountRepository {
       throw new Error(`${type} not updated`);
     }
   }
+
+  async removeRelations({ modelId, type, typeId }: UpdateRelationsProps) {
+    try {
+      await Account.findByIdAndUpdate(modelId, {
+        $pull: { [type]: typeId },
+      });
+    } catch (error) {
+      throw new Error(`${type} not removed`);
+    }
+  }
 }

@@ -2,7 +2,11 @@ import { verifyToken } from "../lib/jwt";
 import { AccountRepository } from "../repositories/AccountRepository";
 import { CategoryRepository } from "../repositories/CategoryRepository";
 import { ProductRepository } from "../repositories/ProductRepository";
-import { CreateProductProps, EditProductProps } from "../types";
+import {
+  CreateProductProps,
+  DeleteProductProps,
+  EditProductProps,
+} from "../types";
 
 export class ProductService {
   constructor(
@@ -84,7 +88,7 @@ export class ProductService {
       throw new Error("Unauthorized");
     }
 
-    const { title, description, price, category_id } = data;
+    const { title, description, price, category_id, remove_category } = data;
 
     if (title) {
       product.title = title;
@@ -104,7 +108,7 @@ export class ProductService {
       product.price = brlPrice;
     }
 
-    if (category_id) {
+    if (category_id && !remove_category) {
       if (product.category) {
         throw new Error("Category already set");
       }
@@ -116,14 +120,64 @@ export class ProductService {
       });
     }
 
+    if (remove_category) {
+      if (!product.category) {
+        throw new Error("No category set");
+      }
+
+      await this.categoryRepository.removeRelations({
+        modelId: product.category,
+        type: "products",
+        typeId: product._id,
+      });
+    }
+
     const response = await this.productRepository.updateProduct({
       productId: product._id,
       title: product.title,
       description: product.description,
       price: product.price,
       category_id: category_id || product.category,
+      remove_category,
     });
 
     return response;
+  }
+
+  async deleteProduct({ token, productId }: DeleteProductProps) {
+    const decoded: any = verifyToken(token);
+    if (!decoded) {
+      throw new Error("Invalid token");
+    }
+
+    const account = await this.accountRepository.findAccountById(decoded.id);
+    if (!account) {
+      throw new Error("Account not found");
+    }
+
+    const product = await this.productRepository.findProductById(productId);
+    if (!product) {
+      throw new Error("Product not found");
+    }
+
+    if (product.owner_id?.toString() !== account._id?.toString()) {
+      throw new Error("Unauthorized");
+    }
+
+    await this.accountRepository.removeRelations({
+      modelId: account._id,
+      type: "products",
+      typeId: product._id,
+    });
+
+    if (product.category) {
+      await this.categoryRepository.removeRelations({
+        modelId: product.category,
+        type: "products",
+        typeId: product._id,
+      });
+    }
+
+    return product;
   }
 }

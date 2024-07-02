@@ -32,7 +32,13 @@ export interface EditProductProps {
     description?: string;
     price?: string;
     category_id?: string;
+    remove_category?: boolean;
   };
+}
+
+export interface DeleteProductProps {
+  token: string;
+  productId: string;
 }
 
 // --- Category ---

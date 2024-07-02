@@ -42,4 +42,14 @@ export class CategoryRepository {
       throw new Error(`${type} not updated`);
     }
   }
+
+  async removeRelations({ modelId, type, typeId }: UpdateRelationsProps) {
+    try {
+      await Category.findByIdAndUpdate(modelId, {
+        $pull: { [type]: typeId },
+      });
+    } catch (error) {
+      throw new Error(`${type} not removed`);
+    }
+  }
 }

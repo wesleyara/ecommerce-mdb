@@ -12,6 +12,7 @@ export interface RepositoryUpdateProduct {
   description: string;
   price: string;
   category_id: unknown;
+  remove_category?: boolean;
 }
 
 // --- Category ---

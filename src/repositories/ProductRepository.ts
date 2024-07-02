@@ -47,6 +47,7 @@ export class ProductRepository {
     description,
     price,
     category_id,
+    remove_category,
   }: RepositoryUpdateProduct) {
     const product = await Product.findByIdAndUpdate(
       productId,
@@ -54,7 +55,7 @@ export class ProductRepository {
         title,
         description,
         price,
-        category: category_id,
+        category: remove_category ? null : category_id,
       },
       { new: true },
     );

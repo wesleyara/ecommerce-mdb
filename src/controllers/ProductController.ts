@@ -66,4 +66,28 @@ export class ProductController {
       return res.status(400).json({ error: err.message });
     }
   }
+
+  async deleteProduct(req: Request, res: Response) {
+    const { productId } = req.body;
+
+    try {
+      const bearerToken = tokenAuth(req);
+      if (!bearerToken) {
+        throw new Error("Token not found");
+      }
+
+      if (!productId) {
+        throw new Error("Product ID not provided");
+      }
+
+      await this.productService.deleteProduct({
+        token: bearerToken,
+        productId,
+      });
+
+      return res.status(200).json({ message: "Product deleted" });
+    } catch (err: any) {
+      return res.status(400).json({ error: err.message });
+    }
+  }
 }

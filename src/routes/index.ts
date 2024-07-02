@@ -25,6 +25,9 @@ router.post("/products/create", (req, res) =>
 router.post("/products/update", (req, res) =>
   productController.updateProduct(req, res),
 );
+router.delete("/products/delete", (req, res) =>
+  productController.deleteProduct(req, res),
+);
 
 // category routes
 router.get("/categories", (req, res) =>
