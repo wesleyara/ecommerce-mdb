@@ -1,12 +1,14 @@
 import { verifyToken } from "../lib/jwt";
 import { AccountRepository } from "../repositories/AccountRepository";
 import { CategoryRepository } from "../repositories/CategoryRepository";
+import { ProductRepository } from "../repositories/ProductRepository";
 import { CreateCategoryProps } from "../types";
 
 export class CategoryService {
   constructor(
     private accountRepository = new AccountRepository(),
     private categoryRepository = new CategoryRepository(),
+    private productRepository = new ProductRepository(),
   ) {}
 
   async findCategories() {
@@ -49,5 +51,69 @@ export class CategoryService {
     });
 
     return category;
+  }
+
+  async updateCategory({ token, categoryId, data }: any) {
+    const decoded: any = verifyToken(token);
+    if (!decoded) {
+      throw new Error("Invalid token");
+    }
+
+    const account = await this.accountRepository.findAccountById(decoded.id);
+    if (!account) {
+      throw new Error("Account not found");
+    }
+
+    const category = await this.categoryRepository.findCategoryById(categoryId);
+    if (!category) {
+      throw new Error("Category not found");
+    }
+
+    if (category.owner_id.toString() !== account._id?.toString()) {
+      throw new Error("Unauthorized");
+    }
+
+    const { title, description, productIds } = data;
+
+    if (title) {
+      category.title = title;
+    }
+
+    if (description) {
+      category.description = description;
+    }
+
+    const promises = [];
+
+    promises.push(
+      this.categoryRepository.updateCategory({
+        categoryId: category._id,
+        title: category.title,
+        description: category.description,
+      }),
+    );
+
+    if (productIds) {
+      category.products = [category.products, ...productIds];
+
+      promises.push(
+        this.categoryRepository.updateRelations({
+          modelId: category._id,
+          type: "products",
+          typeId: productIds,
+        }),
+      );
+
+      promises.push(
+        this.productRepository.updateManyProducts({
+          productIds,
+          category_id: category._id,
+        }),
+      );
+    }
+
+    const [response] = await Promise.all(promises);
+
+    return response;
   }
 }

@@ -1,6 +1,7 @@
 import { Category } from "../models/CategoryModel";
 import {
   RepositoryCreateCategory,
+  RepositoryUpdateCategory,
   UpdateRelationsProps,
 } from "../types/repository";
 
@@ -31,6 +32,29 @@ export class CategoryRepository {
     const response = await Category.find({ owner_id }).populate("products");
 
     return response;
+  }
+
+  async findCategoryById(categoryId: unknown) {
+    const response = await Category.findById(categoryId).populate("products");
+
+    return response;
+  }
+
+  async updateCategory({
+    categoryId,
+    title,
+    description,
+  }: RepositoryUpdateCategory) {
+    const category = await Category.findByIdAndUpdate(
+      categoryId,
+      {
+        title,
+        description,
+      },
+      { new: true },
+    );
+
+    return category;
   }
 
   async updateRelations({ modelId, type, typeId }: UpdateRelationsProps) {
