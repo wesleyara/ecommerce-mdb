@@ -57,20 +57,20 @@ export class CategoryRepository {
     return category;
   }
 
-  async updateRelations({ modelId, type, typeId }: UpdateRelationsProps) {
+  async updateRelations({ modelId, type, typeIds }: UpdateRelationsProps) {
     try {
       await Category.findByIdAndUpdate(modelId, {
-        $push: { [type]: typeId },
+        $push: { [type]: typeIds },
       });
     } catch (error) {
       throw new Error(`${type} not updated`);
     }
   }
 
-  async removeRelations({ modelId, type, typeId }: UpdateRelationsProps) {
+  async removeRelations({ modelId, type, typeIds }: UpdateRelationsProps) {
     try {
       await Category.findByIdAndUpdate(modelId, {
-        $pull: { [type]: typeId },
+        $pullAll: { [type]: typeIds },
       });
     } catch (error) {
       throw new Error(`${type} not removed`);

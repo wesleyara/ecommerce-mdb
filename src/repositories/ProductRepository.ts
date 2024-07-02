@@ -42,6 +42,12 @@ export class ProductRepository {
     return product;
   }
 
+  async findProductsByIds(productIds: unknown[]) {
+    const products = await Product.find({ _id: { $in: productIds } });
+
+    return products;
+  }
+
   async findProductsByCategoryId(category_id: unknown) {
     const products = await Product.find({ category: category_id });
 

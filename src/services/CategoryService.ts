@@ -47,7 +47,7 @@ export class CategoryService {
     await this.accountRepository.updateRelations({
       modelId: account._id,
       type: "categories",
-      typeId: category._id,
+      typeIds: [category._id],
     });
 
     return category;
@@ -73,7 +73,7 @@ export class CategoryService {
       throw new Error("Unauthorized");
     }
 
-    const { title, description, productIds } = data;
+    const { title, description, productIds, remove_products } = data;
 
     if (title) {
       category.title = title;
@@ -83,8 +83,21 @@ export class CategoryService {
       category.description = description;
     }
 
+    const products = await this.productRepository.findProductsByIds(productIds);
+    const filteredProductsWithoutCategory = products
+      .filter(
+        item =>
+          !item.category &&
+          item.owner_id.toString() === account._id?.toString(),
+      )
+      .map(item => item._id);
+    const filteredProductsWithCurrentCategory = products.map(item => item._id);
+
+    console.log(filteredProductsWithCurrentCategory);
+
     const promises = [];
 
+    // TODO: rever essa reescrita
     promises.push(
       this.categoryRepository.updateCategory({
         categoryId: category._id,
@@ -93,21 +106,37 @@ export class CategoryService {
       }),
     );
 
-    if (productIds) {
-      category.products = [category.products, ...productIds];
-
+    if (filteredProductsWithoutCategory && !remove_products) {
       promises.push(
         this.categoryRepository.updateRelations({
           modelId: category._id,
           type: "products",
-          typeId: productIds,
+          typeIds: filteredProductsWithoutCategory,
+        }),
+      );
+
+      promises.push(
+        this.productRepository.updateManyProducts({
+          productIds: filteredProductsWithoutCategory,
+          category_id: category._id,
+        }),
+      );
+    }
+
+    if (remove_products) {
+      promises.push(
+        this.categoryRepository.removeRelations({
+          modelId: category._id,
+          type: "products",
+          typeIds: filteredProductsWithCurrentCategory,
         }),
       );
 
       promises.push(
         this.productRepository.updateManyProducts({
           productIds,
-          category_id: category._id,
+          category_id: null,
+          remove_category: true,
         }),
       );
     }

@@ -62,7 +62,7 @@ export class ProductService {
     await this.accountRepository.updateRelations({
       modelId: account._id,
       type: "products",
-      typeId: product._id,
+      typeIds: [product._id],
     });
 
     return product;
@@ -130,7 +130,7 @@ export class ProductService {
         this.categoryRepository.updateRelations({
           modelId: category_id,
           type: "products",
-          typeId: product._id,
+          typeIds: [product._id],
         }),
       );
     }
@@ -144,7 +144,7 @@ export class ProductService {
         this.categoryRepository.removeRelations({
           modelId: product.category,
           type: "products",
-          typeId: product._id,
+          typeIds: [product._id],
         }),
       );
     }
@@ -180,7 +180,7 @@ export class ProductService {
       this.accountRepository.removeRelations({
         modelId: account._id,
         type: "products",
-        typeId: product._id,
+        typeIds: [product._id],
       }),
     );
 
@@ -189,7 +189,7 @@ export class ProductService {
         this.categoryRepository.removeRelations({
           modelId: product.category,
           type: "products",
-          typeId: product._id,
+          typeIds: [product._id],
         }),
       );
     }

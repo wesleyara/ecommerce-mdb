@@ -37,5 +37,5 @@ export interface RepositoryUpdateCategory {
 export interface UpdateRelationsProps {
   modelId: unknown;
   type: string;
-  typeId: unknown;
+  typeIds: unknown[];
 }

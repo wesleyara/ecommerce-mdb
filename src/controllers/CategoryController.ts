@@ -85,7 +85,7 @@ export class CategoryController {
         categoryId: id,
       });
 
-      return res.status(204).json(response);
+      return res.status(204).json({ message: "Category deleted", response });
     } catch (err: any) {
       return res.status(400).json({ error: err.message });
     }
