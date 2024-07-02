@@ -41,4 +41,29 @@ export class ProductController {
       return res.status(400).json({ error: err.message });
     }
   }
+
+  async updateProduct(req: Request, res: Response) {
+    const { productId, data } = req.body;
+
+    try {
+      const bearerToken = tokenAuth(req);
+      if (!bearerToken) {
+        throw new Error("Token not found");
+      }
+
+      if (!productId || !data) {
+        throw new Error("Product ID or data not provided");
+      }
+
+      const product = await this.productService.updateProduct({
+        token: bearerToken,
+        productId,
+        data,
+      });
+
+      return res.status(200).json({ message: "Product updated", product });
+    } catch (err: any) {
+      return res.status(400).json({ error: err.message });
+    }
+  }
 }

@@ -1,5 +1,8 @@
 import { Product } from "../models/ProductModel";
-import { RepositoryCreateProduct } from "../types";
+import {
+  RepositoryCreateProduct,
+  RepositoryUpdateProduct,
+} from "../types/repository";
 
 export class ProductRepository {
   async createProduct({
@@ -30,5 +33,32 @@ export class ProductRepository {
     const response = await Product.find({ owner_id });
 
     return response;
+  }
+
+  async findProductById(productId: unknown) {
+    const product = await Product.findById(productId);
+
+    return product;
+  }
+
+  async updateProduct({
+    productId,
+    title,
+    description,
+    price,
+    category_id,
+  }: RepositoryUpdateProduct) {
+    const product = await Product.findByIdAndUpdate(
+      productId,
+      {
+        title,
+        description,
+        price,
+        category: category_id,
+      },
+      { new: true },
+    );
+
+    return product;
   }
 }
