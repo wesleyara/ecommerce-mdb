@@ -6,7 +6,7 @@ import { CreateProductProps } from "../types";
 export class ProductService {
   constructor(
     private accountRepository = new AccountRepository(),
-    readonly productRepository = new ProductRepository(),
+    private productRepository = new ProductRepository(),
   ) {}
 
   async findProducts() {
