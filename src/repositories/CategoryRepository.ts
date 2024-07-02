@@ -76,4 +76,10 @@ export class CategoryRepository {
       throw new Error(`${type} not removed`);
     }
   }
+
+  async deleteCategory(categoryId: unknown) {
+    const response = await Category.findByIdAndDelete(categoryId);
+
+    return response;
+  }
 }

@@ -116,4 +116,46 @@ export class CategoryService {
 
     return response;
   }
+
+  async deleteCategory({ token, categoryId }: any) {
+    const decoded: any = verifyToken(token);
+    if (!decoded) {
+      throw new Error("Invalid token");
+    }
+
+    const account = await this.accountRepository.findAccountById(decoded.id);
+    if (!account) {
+      throw new Error("Account not found");
+    }
+
+    const category = await this.categoryRepository.findCategoryById(categoryId);
+    if (!category) {
+      throw new Error("Category not found");
+    }
+
+    if (category.owner_id.toString() !== account._id?.toString()) {
+      throw new Error("Unauthorized");
+    }
+
+    const products = await this.productRepository.findProductsByCategoryId(
+      category._id,
+    );
+    const productsIds = products.map(product => product._id);
+
+    const promises = [];
+
+    promises.push(
+      this.productRepository.updateManyProducts({
+        productIds: productsIds,
+        category_id: null,
+        remove_category: true,
+      }),
+    );
+
+    promises.push(this.categoryRepository.deleteCategory(category._id));
+
+    await Promise.all(promises);
+
+    return category;
+  }
 }

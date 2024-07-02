@@ -22,10 +22,10 @@ router.get("/products", (req, res) => productController.getProducts(req, res));
 router.post("/products/create", (req, res) =>
   productController.createProduct(req, res),
 );
-router.post("/products/update", (req, res) =>
+router.post("/products/update/:id", (req, res) =>
   productController.updateProduct(req, res),
 );
-router.delete("/products/delete", (req, res) =>
+router.delete("/products/delete/:id", (req, res) =>
   productController.deleteProduct(req, res),
 );
 
@@ -36,8 +36,11 @@ router.get("/categories", (req, res) =>
 router.post("/categories/create", (req, res) =>
   categoryController.createCategory(req, res),
 );
-router.post("/categories/update", (req, res) =>
+router.post("/categories/update/:id", (req, res) =>
   categoryController.updateCategory(req, res),
+);
+router.delete("/categories/delete/:id", (req, res) =>
+  categoryController.deleteCategory(req, res),
 );
 
 export default router;

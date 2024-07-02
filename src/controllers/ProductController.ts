@@ -43,7 +43,8 @@ export class ProductController {
   }
 
   async updateProduct(req: Request, res: Response) {
-    const { productId, data } = req.body;
+    const { id } = req.params;
+    const data = req.body;
 
     try {
       const bearerToken = tokenAuth(req);
@@ -51,13 +52,13 @@ export class ProductController {
         throw new Error("Token not found");
       }
 
-      if (!productId || !data) {
+      if (!id || !data) {
         throw new Error("Product ID or data not provided");
       }
 
       const product = await this.productService.updateProduct({
         token: bearerToken,
-        productId,
+        productId: id,
         data,
       });
 
@@ -68,7 +69,7 @@ export class ProductController {
   }
 
   async deleteProduct(req: Request, res: Response) {
-    const { productId } = req.body;
+    const { id } = req.params;
 
     try {
       const bearerToken = tokenAuth(req);
@@ -76,13 +77,13 @@ export class ProductController {
         throw new Error("Token not found");
       }
 
-      if (!productId) {
+      if (!id) {
         throw new Error("Product ID not provided");
       }
 
       const product = await this.productService.deleteProduct({
         token: bearerToken,
-        productId,
+        productId: id,
       });
 
       return res.status(200).json({ message: "Product deleted", product });

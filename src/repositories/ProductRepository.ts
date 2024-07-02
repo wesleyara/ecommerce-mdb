@@ -42,6 +42,12 @@ export class ProductRepository {
     return product;
   }
 
+  async findProductsByCategoryId(category_id: unknown) {
+    const products = await Product.find({ category: category_id });
+
+    return products;
+  }
+
   async updateProduct({
     productId,
     title,
