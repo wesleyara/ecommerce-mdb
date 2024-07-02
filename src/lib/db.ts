@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
-import { DATABASE_URL } from "../utils/constants";
 
+import { DATABASE_URL } from "../utils/constants";
 
 const connectToDatabase = async () => {
   try {

@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+
 import { tokenAuth } from "../lib/jwt";
 import { CategoryService } from "../services/CategoryService";
 
@@ -19,7 +20,7 @@ export class CategoryController {
     const { title, description } = req.body;
 
     try {
-      const bearerToken = tokenAuth(req, res);
+      const bearerToken = tokenAuth(req);
       if (!bearerToken) {
         throw new Error("Token not found");
       }

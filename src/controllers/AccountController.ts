@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
-import { AccountService } from "../services/AccountService";
+
 import { tokenAuth } from "../lib/jwt";
+import { AccountService } from "../services/AccountService";
 
 export class AccountController {
   constructor(private accountService = new AccountService()) {}
@@ -46,7 +47,7 @@ export class AccountController {
 
   async getAccount(req: Request, res: Response) {
     try {
-      const bearerToken = tokenAuth(req, res);
+      const bearerToken = tokenAuth(req);
 
       if (!bearerToken) {
         throw new Error("Token not found");

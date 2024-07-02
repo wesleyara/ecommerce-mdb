@@ -1,14 +1,13 @@
-import express from "express";
-const app = express();
-
-import swaggerUi from "swagger-ui-express";
-
 import cors from "cors";
 import dotenv from "dotenv";
-dotenv.config();
+import express from "express";
+import swaggerUi from "swagger-ui-express";
 
-import router from "./routes";
 import { connectToDatabase } from "./lib/db";
+import router from "./routes";
+
+const app = express();
+dotenv.config();
 const swaggerDocument = require("../public/swagger.json");
 
 const PORT = process.env.PORT || 3333;

@@ -15,8 +15,9 @@ export class AccountService {
   constructor(private accountRepository = new AccountRepository()) {}
 
   async createAccount({ name, email, password }: CreateAccountProps) {
-    const existingAccount =
-      await this.accountRepository.findAccountByEmail(email);
+    const existingAccount = await this.accountRepository.findAccountByEmail(
+      email,
+    );
 
     if (existingAccount) {
       throw new Error("Account already exists");

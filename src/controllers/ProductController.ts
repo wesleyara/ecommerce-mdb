@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
-import { ProductService } from "../services/ProductService";
+
 import { tokenAuth } from "../lib/jwt";
+import { ProductService } from "../services/ProductService";
 
 export class ProductController {
   constructor(readonly productService = new ProductService()) {}
@@ -19,7 +20,7 @@ export class ProductController {
     const { title, description, price } = req.body;
 
     try {
-      const bearerToken = tokenAuth(req, res);
+      const bearerToken = tokenAuth(req);
       if (!bearerToken) {
         throw new Error("Token not found");
       }
