@@ -40,4 +40,29 @@ export class CategoryController {
       return res.status(400).json({ error: err.message });
     }
   }
+
+  async updateCategory(req: Request, res: Response) {
+    const { categoryId, data } = req.body;
+
+    try {
+      const bearerToken = tokenAuth(req);
+      if (!bearerToken) {
+        throw new Error("Token not found");
+      }
+
+      if (!categoryId || !data) {
+        throw new Error("Category ID or data not provided");
+      }
+
+      const category = await this.categoryService.updateCategory({
+        token: bearerToken,
+        categoryId,
+        data,
+      });
+
+      return res.status(200).json(category);
+    } catch (err: any) {
+      return res.status(400).json({ error: err.message });
+    }
+  }
 }

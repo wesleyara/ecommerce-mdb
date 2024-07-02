@@ -36,5 +36,8 @@ router.get("/categories", (req, res) =>
 router.post("/categories/create", (req, res) =>
   categoryController.createCategory(req, res),
 );
+router.post("/categories/update", (req, res) =>
+  categoryController.updateCategory(req, res),
+);
 
 export default router;
