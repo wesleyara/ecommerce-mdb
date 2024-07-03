@@ -1,8 +1,7 @@
-import { Category } from "../models/CategoryModel";
+import { prisma } from "../lib/prisma";
 import {
   RepositoryCreateCategory,
   RepositoryUpdateCategory,
-  UpdateRelationsProps,
 } from "../types/repository";
 
 export class CategoryRepository {
@@ -11,74 +10,89 @@ export class CategoryRepository {
     description,
     owner_id,
   }: RepositoryCreateCategory) {
-    const category = await Category.create({
-      title,
-      description,
-      owner_id,
+    const category = await prisma.category.create({
+      data: {
+        title,
+        description,
+        owner: {
+          connect: {
+            id: owner_id,
+          },
+        },
+      },
     });
-
-    await category.save();
 
     return category;
   }
 
   async findCategories() {
-    const response = await Category.find().populate("products");
+    const response = await prisma.category.findMany({
+      include: {
+        products: true,
+      },
+    });
 
     return response;
   }
 
-  async findCategoriesByOwnerId(owner_id: unknown) {
-    const response = await Category.find({ owner_id }).populate("products");
+  async findCategoriesByOwnerId(ownerId: string) {
+    const response = await prisma.category.findMany({
+      where: {
+        ownerId,
+      },
+      include: {
+        products: true,
+      },
+    });
 
     return response;
   }
 
-  async findCategoryById(categoryId: unknown) {
-    const response = await Category.findById(categoryId).populate("products");
+  async findCategoryById(categoryId: string) {
+    const response = await prisma.category.findUnique({
+      where: {
+        id: categoryId,
+      },
+      include: {
+        products: true,
+      },
+    });
 
     return response;
   }
 
   async updateCategory({
     categoryId,
-    title,
-    description,
+    data,
+    remove_products,
   }: RepositoryUpdateCategory) {
-    const category = await Category.findByIdAndUpdate(
-      categoryId,
-      {
-        title,
-        description,
+    const key = remove_products ? "disconnect" : "connect";
+    const changeProducts = data.productIds && data.productIds.length > 0;
+
+    const category = await prisma.category.update({
+      where: {
+        id: categoryId,
       },
-      { new: true },
-    );
+      data: {
+        title: data.title,
+        description: data.description,
+        ...(changeProducts && {
+          products: {
+            [key]: data.productIds?.map((id: string) => ({ id })),
+          },
+        }),
+      },
+    });
 
     return category;
   }
 
-  async updateRelations({ modelId, type, typeIds }: UpdateRelationsProps) {
-    try {
-      await Category.findByIdAndUpdate(modelId, {
-        $push: { [type]: typeIds },
-      });
-    } catch (error) {
-      throw new Error(`${type} not updated`);
-    }
-  }
-
-  async removeRelations({ modelId, type, typeIds }: UpdateRelationsProps) {
-    try {
-      await Category.findByIdAndUpdate(modelId, {
-        $pullAll: { [type]: typeIds },
-      });
-    } catch (error) {
-      throw new Error(`${type} not removed`);
-    }
-  }
-
-  async deleteCategory(categoryId: unknown) {
-    const response = await Category.findByIdAndDelete(categoryId);
+  async deleteCategory(categoryId: string) {
+    const response = await prisma.category.delete({
+      where: {
+        id: categoryId,
+      },
+    });
 
     return response;
   }

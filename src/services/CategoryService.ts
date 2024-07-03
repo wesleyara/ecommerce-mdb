@@ -29,7 +29,7 @@ export class CategoryService {
     }
 
     const categories = await this.categoryRepository.findCategoriesByOwnerId(
-      account._id,
+      account.id,
     );
     const categoryExists = categories.find(
       category => category.title === title,
@@ -41,13 +41,7 @@ export class CategoryService {
     const category = await this.categoryRepository.createCategory({
       title,
       description,
-      owner_id: account._id,
-    });
-
-    await this.accountRepository.updateRelations({
-      modelId: account._id,
-      type: "categories",
-      typeIds: [category._id],
+      owner_id: account.id,
     });
 
     return category;
@@ -69,7 +63,7 @@ export class CategoryService {
       throw new Error("Category not found");
     }
 
-    if (category.owner_id.toString() !== account._id?.toString()) {
+    if (category.ownerId !== account.id) {
       throw new Error("Unauthorized");
     }
 
@@ -85,63 +79,25 @@ export class CategoryService {
 
     const products = await this.productRepository.findProductsByIds(productIds);
     const filteredProductsWithoutCategory = products
-      .filter(
-        item =>
-          !item.category &&
-          item.owner_id.toString() === account._id?.toString(),
-      )
-      .map(item => item._id);
+      .filter(item => !item.categoryId && item.ownerId === account.id)
+      .map(item => item.id);
     const filteredProductsWithCurrentCategory = products
-      .filter(item => item.category?.toString() === category._id?.toString())
-      .map(item => item._id);
+      .filter(item => item.categoryId === category.id)
+      .map(item => item.id);
 
-    const promises = [];
+    const currentProductIds = remove_products
+      ? filteredProductsWithCurrentCategory
+      : filteredProductsWithoutCategory;
 
-    // TODO: rever essa reescrita
-    promises.push(
-      this.categoryRepository.updateCategory({
-        categoryId: category._id,
+    const response = await this.categoryRepository.updateCategory({
+      categoryId: category.id,
+      data: {
         title: category.title,
         description: category.description,
-      }),
-    );
-
-    if (filteredProductsWithoutCategory && !remove_products) {
-      promises.push(
-        this.categoryRepository.updateRelations({
-          modelId: category._id,
-          type: "products",
-          typeIds: filteredProductsWithoutCategory,
-        }),
-      );
-
-      promises.push(
-        this.productRepository.updateManyProducts({
-          productIds: filteredProductsWithoutCategory,
-          category_id: category._id,
-        }),
-      );
-    }
-
-    if (remove_products) {
-      promises.push(
-        this.categoryRepository.removeRelations({
-          modelId: category._id,
-          type: "products",
-          typeIds: filteredProductsWithCurrentCategory,
-        }),
-      );
-
-      promises.push(
-        this.productRepository.updateManyProducts({
-          productIds,
-          category_id: null,
-          remove_category: true,
-        }),
-      );
-    }
-
-    const [response] = await Promise.all(promises);
+        productIds: currentProductIds,
+      },
+      remove_products,
+    });
 
     return response;
   }
@@ -162,29 +118,12 @@ export class CategoryService {
       throw new Error("Category not found");
     }
 
-    if (category.owner_id.toString() !== account._id?.toString()) {
+    if (category.ownerId !== account.id) {
       throw new Error("Unauthorized");
     }
 
-    const products = await this.productRepository.findProductsByCategoryId(
-      category._id,
-    );
-    const productsIds = products.map(product => product._id);
+    const response = await this.categoryRepository.deleteCategory(category.id);
 
-    const promises = [];
-
-    promises.push(
-      this.productRepository.updateManyProducts({
-        productIds: productsIds,
-        category_id: null,
-        remove_category: true,
-      }),
-    );
-
-    promises.push(this.categoryRepository.deleteCategory(category._id));
-
-    await Promise.all(promises);
-
-    return category;
+    return response;
   }
 }

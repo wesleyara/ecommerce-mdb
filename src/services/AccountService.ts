@@ -44,7 +44,7 @@ export class AccountService {
       throw new Error("Invalid password");
     }
 
-    const token = createToken(account._id);
+    const token = createToken(account.id);
 
     return token;
   }
@@ -67,7 +67,7 @@ export class AccountService {
     }
 
     const accountWithoutPassword = {
-      ...account.toObject(),
+      ...account,
       password: undefined,
     };
 

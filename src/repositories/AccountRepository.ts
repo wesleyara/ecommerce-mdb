@@ -1,17 +1,16 @@
-import { Account } from "../models/AccountModel";
+import { prisma } from "../lib/prisma";
 import { CreateAccountProps } from "../types";
-import { UpdateRelationsProps } from "../types/repository";
 
 export class AccountRepository {
   async createAccount({ name, email, password }: CreateAccountProps) {
     try {
-      const account = await Account.create({
-        name,
-        email,
-        password,
+      const account = await prisma.account.create({
+        data: {
+          name,
+          email,
+          password,
+        },
       });
-
-      await account.save();
 
       return account;
     } catch (error) {
@@ -21,9 +20,15 @@ export class AccountRepository {
 
   async findAccountByEmail(email: string) {
     try {
-      const account = await Account.findOne({ email })
-        .populate("products")
-        .populate("categories");
+      const account = await prisma.account.findUnique({
+        where: {
+          email,
+        },
+        include: {
+          products: true,
+          categories: true,
+        },
+      });
 
       return account;
     } catch (error) {
@@ -33,33 +38,19 @@ export class AccountRepository {
 
   async findAccountById(id: string) {
     try {
-      const account = await Account.findById(id)
-        .populate("products")
-        .populate("categories");
+      const account = await prisma.account.findUnique({
+        where: {
+          id,
+        },
+        include: {
+          products: true,
+          categories: true,
+        },
+      });
 
       return account;
     } catch (error) {
       throw new Error("Account not found");
-    }
-  }
-
-  async updateRelations({ modelId, type, typeIds }: UpdateRelationsProps) {
-    try {
-      await Account.findByIdAndUpdate(modelId, {
-        $push: { [type]: typeIds },
-      });
-    } catch (error) {
-      throw new Error(`${type} not updated`);
-    }
-  }
-
-  async removeRelations({ modelId, type, typeIds }: UpdateRelationsProps) {
-    try {
-      await Account.findByIdAndUpdate(modelId, {
-        $pullAll: { [type]: typeIds },
-      });
-    } catch (error) {
-      throw new Error(`${type} not removed`);
     }
   }
 }

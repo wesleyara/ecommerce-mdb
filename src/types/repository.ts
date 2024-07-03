@@ -3,21 +3,23 @@ export interface RepositoryCreateProduct {
   title: string;
   description: string;
   price: string;
-  owner_id: unknown;
+  owner_id: string;
 }
 
 export interface RepositoryUpdateProduct {
-  productId: unknown;
-  title: string;
-  description: string;
-  price: string;
-  category_id: unknown;
+  productId: string;
+  data: {
+    title: string | undefined;
+    description: string | undefined;
+    price: string | undefined;
+    categoryId: string | undefined;
+  };
   remove_category?: boolean;
 }
 
 export interface RepositoryUpdateManyProducts {
-  productIds: unknown[];
-  category_id: unknown;
+  productIds: string[];
+  category_id: string;
   remove_category?: boolean;
 }
 
@@ -25,17 +27,21 @@ export interface RepositoryUpdateManyProducts {
 export interface RepositoryCreateCategory {
   title: string;
   description: string;
-  owner_id: unknown;
+  owner_id: string;
 }
 export interface RepositoryUpdateCategory {
-  categoryId: unknown;
-  title: string;
-  description: string;
+  categoryId: string;
+  data: {
+    title: string | undefined;
+    description: string | undefined;
+    productIds: string[] | undefined;
+  };
+  remove_products: boolean;
 }
 
 // --- Others ---
 export interface UpdateRelationsProps {
-  modelId: unknown;
+  modelId: string;
   type: string;
-  typeIds: unknown[];
+  typeIds: string[];
 }

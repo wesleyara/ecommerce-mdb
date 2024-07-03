@@ -43,7 +43,7 @@ export class ProductService {
     }
 
     const products = await this.productRepository.findProductsByOwnerId(
-      account._id,
+      account.id,
     );
     const productExists = products.find(product => product.title === title);
     if (productExists) {
@@ -56,13 +56,7 @@ export class ProductService {
       title,
       description,
       price: brlPrice,
-      owner_id: account._id,
-    });
-
-    await this.accountRepository.updateRelations({
-      modelId: account._id,
-      type: "products",
-      typeIds: [product._id],
+      owner_id: account.id,
     });
 
     return product;
@@ -84,72 +78,42 @@ export class ProductService {
       throw new Error("Product not found");
     }
 
-    if (product.owner_id?.toString() !== account._id?.toString()) {
+    if (product.ownerId !== account.id) {
       throw new Error("Unauthorized");
     }
 
     const { title, description, price, category_id, remove_category } = data;
 
-    if (title) {
-      product.title = title;
-    }
-
-    if (description) {
-      product.description = description;
-    }
-
+    let brlPrice = "";
     if (price) {
       const formattedPrice = parseFloat(price);
       if (isNaN(formattedPrice)) {
         throw new Error("Invalid price");
       }
 
-      const brlPrice = `R$ ${formattedPrice.toFixed(2)}`;
-      product.price = brlPrice;
+      brlPrice = `R$ ${formattedPrice.toFixed(2)}`;
     }
 
-    const promises = [];
-
-    promises.push(
-      this.productRepository.updateProduct({
-        productId: product._id,
-        title: product.title,
-        description: product.description,
-        price: product.price,
-        category_id: category_id || product.category,
-        remove_category,
-      }),
-    );
-
-    if (category_id && !remove_category) {
-      if (product.category) {
-        throw new Error("Category already set");
-      }
-
-      promises.push(
-        this.categoryRepository.updateRelations({
-          modelId: category_id,
-          type: "products",
-          typeIds: [product._id],
-        }),
+    const categoryId = remove_category ? undefined : category_id || undefined;
+    if (categoryId) {
+      const category = await this.categoryRepository.findCategoryById(
+        categoryId,
       );
-    }
-
-    if (remove_category) {
-      if (!product.category) {
-        throw new Error("No category set");
+      if (!category) {
+        throw new Error("Category not found");
       }
-
-      promises.push(
-        this.categoryRepository.removeRelations({
-          modelId: product.category,
-          type: "products",
-          typeIds: [product._id],
-        }),
-      );
     }
 
-    const [response] = await Promise.all(promises);
+    const response = await this.productRepository.updateProduct({
+      productId: product.id,
+      data: {
+        title,
+        description,
+        price: brlPrice || undefined,
+        categoryId,
+      },
+      remove_category,
+    });
 
     return response;
   }
@@ -170,33 +134,11 @@ export class ProductService {
       throw new Error("Product not found");
     }
 
-    if (product.owner_id?.toString() !== account._id?.toString()) {
+    if (product.ownerId !== account.id) {
       throw new Error("Unauthorized");
     }
 
-    const promises = [];
-
-    promises.push(
-      this.accountRepository.removeRelations({
-        modelId: account._id,
-        type: "products",
-        typeIds: [product._id],
-      }),
-    );
-
-    if (product.category) {
-      promises.push(
-        this.categoryRepository.removeRelations({
-          modelId: product.category,
-          type: "products",
-          typeIds: [product._id],
-        }),
-      );
-    }
-
-    promises.push(this.productRepository.deleteProductById(product._id));
-
-    await Promise.all(promises);
+    await this.productRepository.deleteProductById(product.id);
 
     return product;
   }
