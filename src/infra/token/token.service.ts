@@ -22,8 +22,6 @@ export class TokenService {
       secret: process.env.JWT_SECRET,
     });
 
-    console.log(decoded);
-
     return decoded;
   };
 }

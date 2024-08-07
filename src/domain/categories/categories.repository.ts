@@ -59,6 +59,7 @@ export class CategoriesRepository {
       },
       include: {
         products: true,
+        owner: true,
       },
     });
 

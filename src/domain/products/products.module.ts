@@ -6,11 +6,17 @@ import { ProductsService } from './products.service';
 import { AccountsModule } from '../accounts/accounts.module';
 import { ProductsController } from './products.controller';
 import { CategoriesModule } from '../categories/categories.module';
+import { ProductsConsumer } from './products.consumer';
 
 @Module({
   imports: [forwardRef(() => CategoriesModule), TokenModule, AccountsModule],
   controllers: [ProductsController],
-  providers: [PrismaService, ProductsRepository, ProductsService],
+  providers: [
+    PrismaService,
+    ProductsRepository,
+    ProductsService,
+    ProductsConsumer,
+  ],
   exports: [ProductsRepository],
 })
 export class ProductsModule {}

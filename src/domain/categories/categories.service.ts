@@ -7,9 +7,11 @@ import {
   CreateCategoryProps,
   UpdateCategoryProps,
 } from './interface/categories.interface';
+import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
 
 @Injectable()
 export class CategoriesService {
+  constructor(private amqpConnection: AmqpConnection) {}
   @Inject(ProductsRepository)
   private productsRepository: ProductsRepository;
 
@@ -51,6 +53,11 @@ export class CategoriesService {
       title,
       description,
       owner_id: account.id,
+    });
+
+    await this.amqpConnection.publish('amq.direct', 'categories', {
+      categoryId: category.id,
+      type: 'create',
     });
 
     return category;
@@ -110,6 +117,11 @@ export class CategoriesService {
       remove_products,
     });
 
+    await this.amqpConnection.publish('amq.direct', 'categories', {
+      categoryId: category.id,
+      type: 'update',
+    });
+
     return response;
   }
 
@@ -138,6 +150,22 @@ export class CategoriesService {
       category.id,
     );
 
+    await this.amqpConnection.publish('amq.direct', 'categories', {
+      categoryId: category.id,
+      type: 'delete',
+    });
+
     return response;
+  }
+
+  async findCategoryById(categoryId: string) {
+    try {
+      const category =
+        await this.categoriesRepository.findCategoryById(categoryId);
+
+      return category;
+    } catch (error) {
+      throw new Error('Category not found');
+    }
   }
 }

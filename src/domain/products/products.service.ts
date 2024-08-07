@@ -8,9 +8,11 @@ import {
 import { TokenService } from 'src/infra/token/token.service';
 import { AccountsRepository } from '../accounts/accounts.repository';
 import { CategoriesRepository } from '../categories/categories.repository';
+import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
 
 @Injectable()
 export class ProductsService {
+  constructor(private amqpConnection: AmqpConnection) {}
   @Inject(CategoriesRepository)
   private categoriesRepository: CategoriesRepository;
 
@@ -63,6 +65,11 @@ export class ProductsService {
       description,
       price: brlPrice,
       owner_id: account.id,
+    });
+
+    await this.amqpConnection.publish('amq.direct', 'products', {
+      productId: product.id,
+      type: 'create',
     });
 
     return product;
@@ -120,6 +127,18 @@ export class ProductsService {
       remove_category,
     });
 
+    if (category_id || (remove_category && product.categoryId)) {
+      await this.amqpConnection.publish('amq.direct', 'categories', {
+        categoryId: category_id || product.categoryId,
+        type: 'update',
+      });
+    }
+
+    await this.amqpConnection.publish('amq.direct', 'products', {
+      productId: product.id,
+      type: 'update',
+    });
+
     return response;
   }
 
@@ -145,6 +164,21 @@ export class ProductsService {
 
     await this.productsRepository.deleteProductById(product.id);
 
+    await this.amqpConnection.publish('amq.direct', 'products', {
+      productId: product.id,
+      type: 'delete',
+    });
+
     return product;
+  }
+
+  async findProductById(productId: string) {
+    try {
+      const product = await this.productsRepository.findProductById(productId);
+
+      return product;
+    } catch (error) {
+      throw new Error('Product not found');
+    }
   }
 }

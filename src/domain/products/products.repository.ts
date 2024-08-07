@@ -52,6 +52,10 @@ export class ProductsRepository {
       where: {
         id: productId,
       },
+      include: {
+        category: true,
+        owner: true,
+      },
     });
 
     return product;
@@ -84,8 +88,6 @@ export class ProductsRepository {
     data,
     remove_category,
   }: RepositoryUpdateProduct) {
-    const key = remove_category ? 'disconnect' : 'connect';
-
     const response = await this.prisma.products.update({
       where: {
         id: productId,
@@ -96,9 +98,14 @@ export class ProductsRepository {
         price: data.price,
         ...(data.categoryId && {
           category: {
-            [key]: {
+            connect: {
               id: data.categoryId,
             },
+          },
+        }),
+        ...(remove_category && {
+          category: {
+            disconnect: true,
           },
         }),
       },
